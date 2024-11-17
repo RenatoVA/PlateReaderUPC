@@ -1,0 +1,142 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 95%;
+    text-align: center;
+    padding: 20px;
+}
+body{
+    background-image: url('/static/images/Fondo.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+h1 {
+    font-size: 3em;
+    color: #000000; /* Negro puro para máxima legibilidad */
+    margin-top: 40px;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.8); /* Sombra clara para destacar en fondos oscuros */
+}
+
+h4 {
+    font-size: 1.5em;
+    color: #000000; /* Negro puro */
+    margin-top: 40px;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 4px rgba(255, 255, 255, 0.6); /* Sombra clara */
+}
+
+.upload-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.upload-section input[type="file"] {
+    padding: 8px;
+    font-size: 1em;
+}
+
+.upload-section button {
+    padding: 8px 12px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #C32845;
+}
+
+.result-section {
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 60%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.result-section h2 {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.result-box {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ddd;
+    min-height: 100px;
+    font-size: 1em;
+    color: #333;
+}
+
+.container-login {
+    background-color: #ffffff;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.container-login h3 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.container-login label {
+    display: block;
+    text-align: left;
+    font-size: 1em;
+    margin: 10px 0 5px;
+    color: #555;
+}
+
+.container-login input[type="text"],
+.container-login input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.container-login input[type="text"]:focus,
+.container-login input[type="password"]:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.container-login button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #4a90e2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.container-login button:hover {
+    background-color: #357abd;
+}

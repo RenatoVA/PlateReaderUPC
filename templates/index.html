@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plate - Reader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/estilos.css') }}">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .result-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .image-result, .text-result {
+            display: none; /* Ocultar inicialmente */
+            width: 48%;
+        }
+
+        .image-result img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .text-result {
+            text-align: left;
+        }
+
+        h1, h4 {
+            margin: 10px 0;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Plate - Reader</h1>
+        <h4>Adjunte imagen para detectar</h4>
+        <div class="upload-section">
+            <input type="file" id="imgFile" accept=".jpg, .png">
+            <button onclick="uploadFile()">Detectar</button>
+        </div>
+        <div class="result-section">
+            <div class="image-result" id="imageResult">
+                <h3>Imagen Procesada</h3>
+                <img id="processedImage" alt="Imagen procesada con las placas detectadas">
+            </div>
+            <div class="text-result" id="textResult">
+                <h3>Texto Detectado</h3>
+                <div id="textResultBox"></div>
+            </div>
+        </div>
+
+</div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('imgFile');
+            const processedImage = document.getElementById('processedImage');
+            const textResultBox = document.getElementById('textResultBox');
+            const imageResult = document.getElementById('imageResult');
+            const textResult = document.getElementById('textResult');
+
+            // Ocultar resultados anteriores
+            imageResult.style.display = 'none';
+            textResult.style.display = 'none';
+
+            // Verificar si se seleccionó un archivo
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Por favor, seleccione una imagen.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function () {
+                const base64String = reader.result.split(',')[1]; // Eliminar el encabezado 'data:image/*;base64,'
+
+                const requestBody = {
+                    image_base64: base64String
+                };
+
+                // Llamar al endpoint de Flask
+                try {
+                    const response = await fetch('/extract_plate_text', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        alert(`Error: ${data.error}`);
+                    } else {
+                        // Mostrar la imagen procesada
+                        processedImage.src = `data:image/jpeg;base64,${data.processed_image}`;
+                        imageResult.style.display = 'block';
+
+                        // Mostrar los textos detectados
+                        const detectedTexts = data.texts.map(
+                            (textData) => `Texto: ${textData.text}`
+                        ).join('<br>');
+                        textResultBox.innerHTML = `
+                            <p>Placas detectadas: ${data.plates_detected}</p>
+                            <p>${detectedTexts}</p>
+                        `;
+                        textResult.style.display = 'block';
+                    }
+                } catch (error) {
+                    alert('Error al procesar. Intente nuevamente.');
+                    console.error('Error: ', error);
+                }
+            };
+
+            reader.onerror = function () {
+                alert('Error al leer la imagen. Intente nuevamente.');
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
