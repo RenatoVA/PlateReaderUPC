@@ -1,0 +1,71 @@
+from zipfile import ZipFile
+from google.colab import files
+# Subir el archivo ZIP
+#uploaded = files.upload()
+
+# Extraer
+with ZipFile("PlacasDataset.zip", 'r') as zip_ref:
+    zip_ref.extractall("/content/PlacasDataset")
+
+images_path = "/content/PlacasDataset/images"
+annotations_path = "/content/PlacasDataset/annotations"
+
+import cv2
+import os
+import xml.etree.ElementTree as ET
+import matplotlib.pyplot as plt
+
+# Definir rutas
+images_path = "/content/PlacasDataset/images"
+annotations_path = "/content/PlacasDataset/annotations"
+
+# leer y preprocesar una imagen
+def preprocess_image(image_path):
+    img = cv2.imread(image_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 50, 150)
+    return img, edges
+
+# leer una anotación XML
+def read_annotation(xml_path):
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+    bbox = root.find(".//bndbox")
+    xmin = int(bbox.find("xmin").text)
+    ymin = int(bbox.find("ymin").text)
+    xmax = int(bbox.find("xmax").text)
+    ymax = int(bbox.find("ymax").text)
+    return (xmin, ymin, xmax, ymax)
+
+# Solicitar nombre de la imagen
+image_name = input("Introduce el nombre de la imagen (por ejemplo, Cars0.png): ").strip()
+
+# Construir rutas completas para la imagen y la anotación
+image_path = os.path.join(images_path, image_name)
+annotation_path = os.path.join(annotations_path, image_name.replace(".png", ".xml"))
+
+# Verificar si existen
+if not os.path.exists(image_path) or not os.path.exists(annotation_path):
+    print("El archivo no existe")
+else:
+    img, edges = preprocess_image(image_path)
+    # Detectar contornos
+    contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Dibujar contornos
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        aspect_ratio = w / float(h)
+        if 2 < aspect_ratio < 5:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    # Leer XML y dibujar caja real
+    true_bbox = read_annotation(annotation_path)
+    cv2.rectangle(img, (true_bbox[0], true_bbox[1]), (true_bbox[2], true_bbox[3]), (255, 0, 0), 2)
+
+    # Mostrar
+    plt.figure(figsize=(10, 6))
+    plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    plt.title(f"Detección en {image_name}")
+    plt.axis("off")
+    plt.show()
